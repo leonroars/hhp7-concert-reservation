@@ -37,6 +37,10 @@ logging:
 server:
   port: 8080
 
+#### 데이터 플랫폼 EndPoint 설정
+dataplatform:
+  url: http://localhost:8080/api/dataplatform/reservations
+
 #### 대기열 구현체 설정 : Default - DB
 app:
   queue:

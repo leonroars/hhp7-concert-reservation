@@ -15,6 +15,7 @@ import com.hhp7.concertreservation.infrastructure.distributedlock.redisson.aop.R
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class ConcertReservationApplication {
     private final PointService pointService;
     private final QueueService queueService;
     private final ReservationService reservationService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 사용자의 포인트 잔액을 조회합니다.
@@ -180,8 +182,12 @@ public class ConcertReservationApplication {
         // 결제
         pointService.decreaseUserPointBalance(userId, concertService.getSeat(seatId).getPrice());
 
+        Reservation confirmed = reservationService.confirmReservation(tempReservation.getId());
+        // 이벤트 발행
+        applicationEventPublisher.publishEvent(confirmed);
+
         // 가예약 확정 처리
-        return reservationService.confirmReservation(tempReservation.getId());
+        return confirmed;
     }
 
     /**
